@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string.h>
+#include <locale.h>
+#include <windows.h>
 #include "admin.cpp"
 #include "typedef.h"
 
@@ -7,6 +9,8 @@ using namespace std;
 // TODO: guardar la contaseña en un txt
 int main()
 {
+    setlocale(LC_ALL, "Spanish");
+
     habitacion hotel[8][4];
     char passwd[15] = {'\000'};
     int op = 1;
