@@ -5,8 +5,7 @@
 
 using namespace std;
 // TODO: guardar la contaseña en un txt
-int main()
-{
+int main(){
     habitacion hotel[8][4];
     char passwd[15] = {'\000'};
     int op = 1;
@@ -46,6 +45,7 @@ int main()
             break;
         case 2:
             /* code */
+            
             break;
         case 3:
             /* code */
