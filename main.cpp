@@ -1,11 +1,32 @@
 #include <iostream>
 #include <string.h>
-#include "admin.cpp"
-#include "typedef.h"
 
 using namespace std;
 // TODO: guardar la contaseña en un txt
-int main(){
+struct reserva
+{
+    int codHabitacion;
+    char fechaInicio[9];
+    char fechaFin[9];
+};
+struct huesped
+{
+    char nombre[30];
+    char pais[20];
+    int id;
+    reserva res;
+};
+struct habitacion
+{
+    int codigo;
+    char tipo;
+    int capacidadMax;
+    int huespdesActuales = 0;
+    float precioNoche;
+    huesped huespedes[];
+};
+int main()
+{
     habitacion hotel[8][4];
     char passwd[15] = {'\000'};
     int op = 1;
@@ -45,7 +66,7 @@ int main(){
             break;
         case 2:
             /* code */
-            
+
             break;
         case 3:
             /* code */
@@ -62,10 +83,17 @@ int main(){
                 {
                     char p[15] = {'\000'};
                     cout << "Ingrese contrasena: ";
-                    fgets(p, 15, stdin);
+                    gets(p);
                     if (strcmp(p, passwd) == 0)
                     {
-                        admin();
+                        cout << "Bienvenido\n";
+                        cout << "---------------------------------------------\n";
+                        cout << "1. Añadir habitación";
+                        cout << "2. Colocar habitación fuera de servicio";
+                        cout << "3. Editar habitación";
+                        cout << "0. Regresar a la interfaz principal";
+                        cout << "---------------------------------------------\n";
+                        cout << "-> " << endl;
                     }
                     else
                     {
