@@ -1,0 +1,18 @@
+Función aniadir_habitacion(habitacion hotel[8][4])
+    Leer piso,numero
+    Si hotel[piso-1][codigo-1].codigo = 0
+        Leer precio, tipo
+        hotel[piso-1][codigo-1].codigo <- piso*100 + numero
+        hotel[piso-1][codigo-1].codigo.precioNoche <- precio
+        hotel[piso-1][codigo-1].codigo.tipo <- tipo
+        Si (tipo = 's' o tipo = 'S')
+            hotel[piso-1][codigo-1].cantidadMax <- 1
+        Sino
+            Si (tipo = 'd' o tipo = 'D')
+                hotel[piso-1][codigo-1].cantidadMax <- 2
+            FSi
+        FSi
+    Sino
+        Escribir error
+    FSi
+FinFuncion

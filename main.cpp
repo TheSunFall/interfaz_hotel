@@ -129,10 +129,10 @@ void aniadir_habitacion(habitacion (&hotel)[8][4])
         {
             hotel[piso - 1][numero - 1].capacidadMax = 1;
         }
-        else
+        else if (tipo == 'd' || tipo == 'D')
         {
             hotel[piso - 1][numero - 1].capacidadMax = 2;
-        }
+        } 
         cout << "Habitacion creada exitosamente\n";
     }
     else
