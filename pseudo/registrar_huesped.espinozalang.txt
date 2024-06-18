@@ -1,0 +1,26 @@
+Función registrar_huesped(habitacion hotel[8][4])
+    Leer piso, numero
+    Si hotel[piso-1][numero-1].codigo = 0
+        Escribir "La habitacion no existe"
+        Retornar
+    FSi
+
+    Si hotel[piso-1][numero-1].huespdesActuales >= hotel[piso-1][numero-1].capacidadMax
+        Escribir "La habitacion esta llena"
+        Retornar
+    FSi
+
+    Leer nuevoHuesped.nombre
+    Leer nuevoHuesped.pais
+    Leer nuevoHuesped.id
+
+    Escribir "Ingrese la fecha de inicio (DD MM AAAA)"
+    Leer nuevoHuesped.res.fechaInicio.dia, nuevoHuesped.res.fechaInicio.mes, nuevoHuesped.res.fechaInicio.anio
+
+    nuevoHuesped.res.codHabitacion <- hotel[piso-1][numero-1].codigo
+
+    hotel[piso-1][numero-1].huespedes[hotel[piso-1][numero-1].huespdesActuales] <- nuevoHuesped
+    hotel[piso-1][numero-1].huespdesActuales <- hotel[piso-1][numero-1].huespdesActuales + 1
+
+    Escribir "Huesped registrado exitosamente"
+FinFunción
