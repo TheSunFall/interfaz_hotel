@@ -1,6 +1,8 @@
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include <fstream>
+
+#include <cstring>
+
 #include <locale.h>
 #include <windows.h>
 
@@ -49,13 +51,15 @@ void modificar_habitacion(habitacion (&)[8][4]);
 
 int main()
 {
-    FILE *passwd, *cpasswd;
+
     habitacion hotel[8][4];
-    char p[15] = {'\000'}, p2[15] = {'\000'},c;
+    char p[15] = {'\000'}, p2[15] = {'\000'}, c;
     int op = 1, size;
-    setlocale(LC_ALL,"es_PE");
+    setlocale(LC_ALL, "es_PE");
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
+    system("cls");
+    system("COLOR 71");
     cout << "¡Bienvenido!" << endl;
     while (op)
     {
@@ -71,33 +75,36 @@ int main()
         cin >> op;
         switch (op)
         {
-        case 1:system("cls");
+        case 1:
+            system("cls");
             ver_habitaciones_disponibles(hotel);
             break;
-        case 2:system("cls");
+        case 2:
+            system("cls");
             registrar_huesped(hotel);
             break;
-        case 3:system("cls");
+        case 3:
+            system("cls");
             registrar_salida_huesped(hotel);
             break;
-        case 4:system("cls");
-            passwd = fopen("ps.dat", "rb");
-            if (passwd == NULL)
+        case 4:
+        {
+            system("cls");
+            ifstream f("ps.dat", ios::binary);
+
+            if (f.bad() || (f.peek() == EOF))
             {
-                cpasswd = fopen("ps.dat", "wb");
+                ofstream f("ps.dat", ios::binary);
                 cout << "Cree una nueva contrasena: ";
                 cin.ignore();
                 cin.getline(p, 15);
-                fwrite(p, 1, sizeof(p), cpasswd);
-                fclose(cpasswd);
+                f.write(p, sizeof(p));
+                f.close();
                 admin(hotel);
             }
             else
             {
-                fseek(passwd, 0, SEEK_END);
-                size = ftell(passwd);
-                rewind(passwd);
-                fread(p, sizeof(char), size, passwd);
+                f.read(p, sizeof(p));
                 cout << "Ingrese la contrasena: ";
                 cin >> p2;
                 if (strcmp(p, p2) == 0)
@@ -110,9 +117,12 @@ int main()
                 }
             }
             break;
-        case 0:system("cls");
+        }
+        case 0:
+            system("cls");
             cout << "Saliendo... \n";
-            break;
+            system("COLOR 07");
+            return 0;
         default:
             cout << "Opcion no valida, intente de nuevo\n";
             break;
@@ -146,6 +156,7 @@ void admin(habitacion (&hotel)[8][4])
             break;
         case 3:
             modificar_habitacion(hotel);
+
             break;
         case 0:
             cout << "Regresando a la interfaz principal\n";
