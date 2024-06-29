@@ -1,6 +1,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
+#include <windows.h>
 
 using namespace std;
 
@@ -49,11 +51,15 @@ int main()
 {
     FILE *passwd, *cpasswd;
     habitacion hotel[8][4];
-    char p[15] = {'\000'}, p2[15] = {'\000'};
+    char p[15] = {'\000'}, p2[15] = {'\000'},c;
     int op = 1, size;
+    setlocale(LC_ALL,"es_PE");
+    SetConsoleCP(CP_UTF8);
+    SetConsoleOutputCP(CP_UTF8);
     cout << "¡Bienvenido!" << endl;
     while (op)
     {
+
         cout << "---------------------------------------------\n";
         cout << "1. Ver habitaciones disponibles\n";
         cout << "2. Registrar huésped\n";
@@ -65,16 +71,16 @@ int main()
         cin >> op;
         switch (op)
         {
-        case 1:
+        case 1:system("cls");
             ver_habitaciones_disponibles(hotel);
             break;
-        case 2:
+        case 2:system("cls");
             registrar_huesped(hotel);
             break;
-        case 3:
+        case 3:system("cls");
             registrar_salida_huesped(hotel);
             break;
-        case 4:
+        case 4:system("cls");
             passwd = fopen("ps.dat", "rb");
             if (passwd == NULL)
             {
@@ -100,17 +106,20 @@ int main()
                 }
                 else
                 {
-                    cout << "Contrasena incorrecta";
+                    cout << "Contrasena incorrecta\n";
                 }
             }
             break;
-        case 0:
+        case 0:system("cls");
             cout << "Saliendo... \n";
             break;
         default:
             cout << "Opcion no valida, intente de nuevo\n";
             break;
         }
+        cout << "Ingrese cualquier caracter (no especial) para continuar...";
+        cin >> c;
+        system("cls");
     }
 }
 void admin(habitacion (&hotel)[8][4])
