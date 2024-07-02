@@ -5,3 +5,5 @@
 build/
 .idea/
 cmake-build-debug/
+datos*
+usuarios.txt

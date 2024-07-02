@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <cstring>
-#include <locale.h>
+#include <clocale>
 #include <windows.h>
 
 using namespace std;
@@ -30,24 +29,38 @@ struct habitacion {
     int capacidadMax = 0;
     float precioNoche = 0;
     int huespdesActuales = 0;
-    huesped huespedes[2];
+    huesped huespedes[2] = {"", "", 0, {0, {0, 0, 0}}};
     bool fueraDeServicio = false;
 };
 
 void menu(habitacion (&)[8][4]);
+
 void menu_administradores(habitacion (&)[8][4]);
+
 void crear_archivo_usuarios();
+
 void inicializar_archivos();
+
 bool verificar_usuario();
+
 void editar_usuarios_contrasenas();
+
 void ver_habitaciones_disponibles(habitacion (&)[8][4]);
+
 void aniadir_habitacion(habitacion (&)[8][4]);
+
 void colocar_fuera_servicio(habitacion (&)[8][4]);
+
 void modificar_habitacion(habitacion (&)[8][4]);
+
 void registrar_huesped(habitacion (&)[8][4]);
+
 void registrar_salida_huesped(habitacion (&)[8][4]);
+
 void generar_boleta(habitacion (&hotel)[8][4]);
+
 void guardar_datos(habitacion hotel[8][4]);
+
 void cargar_datos(habitacion hotel[8][4]);
 
 int main() {
@@ -62,7 +75,7 @@ int main() {
     return 0;
 }
 
-//Menu principal
+// Menu principal
 void menu(habitacion (&hotel)[8][4]) {
     int opcion;
     do {
@@ -113,8 +126,9 @@ void menu(habitacion (&hotel)[8][4]) {
     } while (opcion != 0);
 }
 
-//Menu para admministradores
+// Menu para admministradores
 void menu_administradores(habitacion (&hotel)[8][4]) {
+    int opcion;
     bool usuarioValido = false;
     string usuario, contrasena;
     do {
@@ -124,8 +138,6 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
                 cout << "Usuario o contraseña incorrectos. Intente nuevamente.\n";
             }
         } else {
-            system("cls");
-            int opcion;
             cout << "====================================\n";
             cout << "Menú de administración\n";
             cout << "====================================\n";
@@ -160,17 +172,17 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
                     break;
                 case 0:
                     cout << "Saliendo...\n";
-                    menu(hotel);
+                    system("cls");
                     break;
                 default:
                     cout << "Opción inválida. Intente nuevamente.\n";
                     break;
             }
         }
-    } while (usuarioValido);
+    } while (usuarioValido && opcion != 0);
 }
 
-//Funciones de control de usuarios
+// Funciones de control de usuarios
 void crear_archivo_usuarios() {
     ofstream archivo("usuarios.txt");
     if (archivo.is_open()) {
@@ -232,8 +244,142 @@ void editar_usuarios_contrasenas() {
     archivo.close();
     cout << "Usuario y contraseña agregados exitosamente.\n";
 }
+// Funciones del sistema
 
-//Funciones del sistema
+
+void ver_habitaciones_disponibles(habitacion (&hotel)[8][4]) {
+    cout << "====================================\n";
+    cout << "Habitaciones disponibles\n";
+    cout << "====================================\n";
+    for (int i = 0; i < 8; i++) {
+        int e = 0;
+        cout << i + 1 << "° piso: \n";
+        for (int j = 0; j < 4; j++) {
+            if (hotel[i][j].codigo != 0) {
+                e++;
+                cout << "Habitación " << hotel[i][j].codigo << "\n";
+                if (hotel[i][j].huespdesActuales < hotel[i][j].capacidadMax && !hotel[i][j].fueraDeServicio) {
+                    cout << "Tipo: ";
+                    switch (hotel[i][j].tipo) {
+                        case 's':
+                        case 'S':
+                            cout << "Simple\n";
+                            break;
+                        case 'd':
+                        case 'D':
+                            cout << "Doble\n";
+                            break;
+                        default:
+                            cout << "Desconocido\n";
+                            break;
+                    }
+                    cout << "Capacidad máxima: " << hotel[i][j].capacidadMax << "\n";
+                    cout << "Precio por noche: " << hotel[i][j].precioNoche << "\n";
+                    cout << endl;
+                } else {
+                    cout << "No disponible\n" << endl;
+                }
+            }
+        }
+        if (e == 0) {
+            cout << "No hay habitaciones disponibles en este piso.\n";
+        }
+    }
+}
+
+void registrar_huesped(habitacion (&hotel)[8][4]) {
+    int piso, numero;
+    huesped nuevoHuesped;
+    cout << "Ingrese el piso de la habitacion: ";
+    cin >> piso;
+    cout << "Ingrese el número de la habitacion: ";
+    cin >> numero;
+
+    if (hotel[piso - 1][numero - 1].codigo == 0) {
+        system("cls");
+        cout << "La habitacion no existe\n";
+        return;
+    }
+    if (hotel[piso - 1][numero - 1].huespdesActuales >= hotel[piso - 1][numero - 1].capacidadMax) {
+        system("cls");
+        cout << "La habitacion esta llena\n";
+        return;
+    }
+    if (hotel[piso - 1][numero - 1].fueraDeServicio) {
+        system("cls");
+        cout << "La habitacion está fuera de servicio\n";
+        return;
+    }
+
+    cout << "Ingrese el nombre del huesped: ";
+    cin.ignore();
+    cin.getline(nuevoHuesped.nombre, 30);
+    cout << "Ingrese el pais del huesped: ";
+    cin.getline(nuevoHuesped.pais, 20);
+    cout << "Ingrese el ID del huesped: ";
+    cin >> nuevoHuesped.id;
+
+    cout << "Ingrese la fecha de inicio (DD MM AAAA): ";
+    cin >> nuevoHuesped.res.fechaInicio.dia >> nuevoHuesped.res.fechaInicio.mes >> nuevoHuesped.res.fechaInicio.anio;
+
+    nuevoHuesped.res.codHabitacion = hotel[piso - 1][numero - 1].codigo;
+
+    hotel[piso - 1][numero - 1].huespedes[hotel[piso - 1][numero - 1].huespdesActuales] = nuevoHuesped;
+    hotel[piso - 1][numero - 1].huespdesActuales++;
+    system("cls");
+    cout << "Huesped registrado exitosamente\n";
+}
+
+void registrar_salida_huesped(habitacion (&hotel)[8][4]) {
+    int piso, numero, id;
+    cout << "Ingrese el piso de la habitacion: ";
+    cin >> piso;
+    cout << "Ingrese el número de la habitacion: ";
+    cin >> numero;
+
+    if (hotel[piso - 1][numero - 1].codigo == 0) {
+        system("cls");
+        cout << "La habitacion no existe\n";
+        return;
+    }
+    if (hotel[piso - 1][numero - 1].huespdesActuales == 0) {
+        system("cls");
+        cout << "No hay huespedes en esta habitacion\n";
+        return;
+    }
+
+    cout << "Huespedes en la habitacion:\n";
+    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; i++) {
+        cout << "ID: " << hotel[piso - 1][numero - 1].huespedes[i].id << ", Nombre: "
+             << hotel[piso - 1][numero - 1].huespedes[i].nombre << endl;
+    }
+
+    cout << "Ingrese el ID del huesped que va a salir: ";
+    cin >> id;
+
+    int index = -1;
+    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; i++) {
+        if (hotel[piso - 1][numero - 1].huespedes[i].id == id) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1) {
+        system("cls");
+        cout << "Huesped no encontrado\n";
+        return;
+    }
+
+    for (int i = index; i < hotel[piso - 1][numero - 1].huespdesActuales - 1; i++) {
+        hotel[piso - 1][numero - 1].huespedes[i] = hotel[piso - 1][numero - 1].huespedes[i + 1];
+    }
+
+    hotel[piso - 1][numero - 1].huespdesActuales--;
+    system("cls");
+    cout << "Huesped registrado como salido exitosamente\n";
+}
+
 void generar_boleta(habitacion (&hotel)[8][4]) {
     cout << "====================================\n";
     cout << "Generar Boleta\n";
@@ -256,125 +402,43 @@ void generar_boleta(habitacion (&hotel)[8][4]) {
     cout << "Habitación: " << hotel[piso - 1][numero - 1].codigo << "\n";
     cout << "Total a pagar: $" << total << "\n";
     cout << "----------------------------\n";
-}
 
-void registrar_huesped(habitacion (&hotel)[8][4]) {
-    int piso, numero;
-    huesped nuevoHuesped;
-    cout << "Ingrese el piso de la habitacion: ";
-    cin >> piso;
-    cout << "Ingrese el número de la habitacion: ";
-    cin >> numero;
-
-    if (hotel[piso - 1][numero - 1].codigo == 0) {
-        cout << "La habitacion no existe\n";
-        return;
-    }
-    if (hotel[piso - 1][numero - 1].huespdesActuales >= hotel[piso - 1][numero - 1].capacidadMax) {
-        cout << "La habitacion esta llena\n";
-        return;
-    }
-    if (hotel[piso - 1][numero - 1].fueraDeServicio) {
-        cout << "La habitacion está fuera de servicio\n";
-        return;
+    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; ++i) {
+        huesped &h = hotel[piso - 1][numero - 1].huespedes[i];
+        cout << "Datos del huésped:\n";
+        cout << "Nombre: " << h.nombre << endl;
+        cout << "País: " << h.pais << endl;
+        cout << "ID: " << h.id << endl;
+        cout << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/"
+             << h.res.fechaInicio.anio << endl;
+        cout << "----------------------------\n";
     }
 
-    cout << "Ingrese el nombre del huesped: ";
-    cin.ignore();
-    cin.getline(nuevoHuesped.nombre, 30);
-    cout << "Ingrese el pais del huesped: ";
-    cin.getline(nuevoHuesped.pais, 20);
-    cout << "Ingrese el ID del huesped: ";
-    cin >> nuevoHuesped.id;
+    char respuesta;
+    cout << "¿Desea descargar la boleta? (s/n): ";
+    cin >> respuesta;
+    if (respuesta == 's' || respuesta == 'S') {
+        ofstream archivo("boleta_cliente.txt");
+        if (archivo.is_open()) {
+            archivo << "Boleta electrónica\n";
+            archivo << "Habitación: " << hotel[piso - 1][numero - 1].codigo << "\n";
+            archivo << "Total a pagar: $" << total << "\n";
+            archivo << "----------------------------\n";
 
-    cout << "Ingrese la fecha de inicio (DD MM AAAA): ";
-    cin >> nuevoHuesped.res.fechaInicio.dia >> nuevoHuesped.res.fechaInicio.mes >> nuevoHuesped.res.fechaInicio.anio;
-
-    nuevoHuesped.res.codHabitacion = hotel[piso - 1][numero - 1].codigo;
-
-    hotel[piso - 1][numero - 1].huespedes[hotel[piso - 1][numero - 1].huespdesActuales] = nuevoHuesped;
-    hotel[piso - 1][numero - 1].huespdesActuales++;
-
-    cout << "Huesped registrado exitosamente\n";
-}
-
-void registrar_salida_huesped(habitacion (&hotel)[8][4]) {
-    int piso, numero, id;
-    cout << "Ingrese el piso de la habitacion: ";
-    cin >> piso;
-    cout << "Ingrese el número de la habitacion: ";
-    cin >> numero;
-
-    if (hotel[piso - 1][numero - 1].codigo == 0) {
-        cout << "La habitacion no existe\n";
-        return;
-    }
-    if (hotel[piso - 1][numero - 1].huespdesActuales == 0) {
-        cout << "No hay huespedes en esta habitacion\n";
-        return;
-    }
-
-    cout << "Huespedes en la habitacion:\n";
-    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; i++) {
-        cout << "ID: " << hotel[piso - 1][numero - 1].huespedes[i].id << ", Nombre: " << hotel[piso - 1][numero - 1].huespedes[i].nombre << endl;
-    }
-
-    cout << "Ingrese el ID del huesped que va a salir: ";
-    cin >> id;
-
-    int index = -1;
-    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; i++) {
-        if (hotel[piso - 1][numero - 1].huespedes[i].id == id) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        cout << "Huesped no encontrado\n";
-        return;
-    }
-
-    for (int i = index; i < hotel[piso - 1][numero - 1].huespdesActuales - 1; i++) {
-        hotel[piso - 1][numero - 1].huespedes[i] = hotel[piso - 1][numero - 1].huespedes[i + 1];
-    }
-
-    hotel[piso - 1][numero - 1].huespdesActuales--;
-    cout << "Huesped registrado como salido exitosamente\n";
-}
-
-void ver_habitaciones_disponibles(habitacion (&hotel)[8][4]) {
-    cout << "====================================\n";
-    cout << "Habitaciones disponibles\n";
-    cout << "====================================\n";
-    for (int i = 0; i < 8; i++) {
-        int e = 0;
-        cout << i + 1 << "° piso: \n";
-        for (int j = 0; j < 4; j++) {
-            if (hotel[i][j].huespdesActuales < hotel[i][j].capacidadMax && !hotel[i][j].fueraDeServicio) {
-                cout << "Habitación " << hotel[i][j].codigo << "\n";
-                cout << "Tipo: ";
-                switch (hotel[i][j].tipo) {
-                    case 's':
-                    case 'S':
-                        cout << "Simple\n";
-                        break;
-                    case 'd':
-                    case 'D':
-                        cout << "Doble\n";
-                        break;
-                    default:
-                        cout << "Desconocido\n";
-                        break;
-                }
-                cout << "Capacidad máxima: " << hotel[i][j].capacidadMax << "\n";
-                cout << "Precio por noche: " << hotel[i][j].precioNoche << "\n";
-                e++;
-                cout << endl;
+            for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; ++i) {
+                huesped &h = hotel[piso - 1][numero - 1].huespedes[i];
+                archivo << "Datos del huésped:\n";
+                archivo << "Nombre: " << h.nombre << endl;
+                archivo << "País: " << h.pais << endl;
+                archivo << "ID: " << h.id << endl;
+                archivo << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/"
+                        << h.res.fechaInicio.anio << endl;
+                archivo << "----------------------------\n";
             }
-        }
-        if (e == 0) {
-            cout << "No hay habitaciones disponibles en este piso.\n";
+            archivo.close();
+            cout << "Boleta descargada exitosamente en boleta_cliente.txt\n";
+        } else {
+            cout << "Error al crear el archivo de boleta.\n";
         }
     }
 }
@@ -405,6 +469,7 @@ void aniadir_habitacion(habitacion (&hotel)[8][4]) {
         }
         cout << "Habitación creada exitosamente\n";
     } else {
+        system("cls");
         cout << "Error: la habitación " << piso * 100 + numero << " ya existe\n";
     }
 }
@@ -414,20 +479,41 @@ void colocar_fuera_servicio(habitacion (&hotel)[8][4]) {
     cout << "Habitacion fuera de servicio\n";
     cout << "====================================\n";
     int piso, numero;
+    char h;
     cout << "Ingrese el piso de la habitación: ";
     cin >> piso;
     cout << "Ingrese el número de la habitación: ";
     cin >> numero;
 
     if (hotel[piso - 1][numero - 1].codigo == 0) {
+        system("cls");
         cout << "La habitación no existe\n";
-        return;
+    } else {
+        if (!hotel[piso - 1][numero - 1].fueraDeServicio) {
+            hotel[piso - 1][numero - 1].fueraDeServicio = true;
+            hotel[piso - 1][numero - 1].huespdesActuales = 0;
+            for (int i = 0; i < 2; i++){
+                hotel[piso-1][numero-1].huespedes[i] = {"", "", 0, {0, {0, 0, 0}}};
+            }
+            system("cls");
+            cout << "Habitación colocada fuera de servicio y huéspedes desalojados\n";
+        } else {
+            cout << "Esta habitación ya está fuera de servicio. \n¿Desea volver a habilitarla? (s/n): ";
+            cin >> h;
+            switch (h) {
+                case 's':
+                case 'S':
+                    hotel[piso - 1][numero - 1].fueraDeServicio = false;
+                    break;
+                case 'n':
+                case 'N':
+                default:
+                    break;
+            }
+            system("cls");
+            cout << "Habitación reactivada para su uso\n";
+        }
     }
-
-    hotel[piso - 1][numero - 1].fueraDeServicio = true;
-    hotel[piso - 1][numero - 1].huespdesActuales = 0;
-
-    cout << "Habitación colocada fuera de servicio y huéspedes desalojados\n";
 }
 
 void modificar_habitacion(habitacion (&hotel)[8][4]) {
@@ -453,8 +539,10 @@ void modificar_habitacion(habitacion (&hotel)[8][4]) {
         } else if (tipo == 'd' || tipo == 'D') {
             hotel[piso - 1][numero - 1].capacidadMax = 2;
         }
+        system("cls");
         cout << "Habitación modificada exitosamente\n";
     } else {
+        system("cls");
         cout << "Error: la habitación " << piso * 100 + numero << " no existe\n";
     }
 }
@@ -475,9 +563,11 @@ void cargar_datos(habitacion hotel[8][4]) {
     while (!file.eof()) {
         int piso, numero;
         habitacion temp;
-        file >> temp.codigo >> temp.tipo >> temp.capacidadMax >> temp.precioNoche >> temp.huespdesActuales >> temp.fueraDeServicio;
+        file >> temp.codigo >> temp.tipo >> temp.capacidadMax >> temp.precioNoche >> temp.huespdesActuales
+             >> temp.fueraDeServicio;
 
-        if (file.eof()) break;
+        if (file.eof())
+            break;
 
         piso = temp.codigo / 100 - 1;
         numero = temp.codigo % 100 - 1;
@@ -486,7 +576,8 @@ void cargar_datos(habitacion hotel[8][4]) {
 
         for (int k = 0; k < temp.huespdesActuales; k++) {
             huesped tempHuesped;
-            file >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.fechaInicio.dia >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
+            file >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.fechaInicio.dia
+                 >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
             hotel[piso][numero].huespedes[k] = tempHuesped;
         }
     }
@@ -510,18 +601,13 @@ void guardar_datos(habitacion hotel[8][4]) {
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 4; j++) {
             if (hotel[i][j].codigo != 0) {
-                file << hotel[i][j].codigo << " "
-                     << hotel[i][j].tipo << " "
-                     << hotel[i][j].capacidadMax << " "
-                     << hotel[i][j].precioNoche << " "
-                     << hotel[i][j].huespdesActuales << " "
+                file << hotel[i][j].codigo << " " << hotel[i][j].tipo << " " << hotel[i][j].capacidadMax << " "
+                     << hotel[i][j].precioNoche << " " << hotel[i][j].huespdesActuales << " "
                      << hotel[i][j].fueraDeServicio << "\n";
                 for (int k = 0; k < hotel[i][j].huespdesActuales; k++) {
-                    fileHuespedes << hotel[i][j].huespedes[k].nombre << " "
-                                  << hotel[i][j].huespedes[k].pais << " "
-                                  << hotel[i][j].huespedes[k].id << " "
-                                  << hotel[i][j].huespedes[k].res.codHabitacion << " "
-                                  << hotel[i][j].huespedes[k].res.fechaInicio.dia << " "
+                    fileHuespedes << hotel[i][j].huespedes[k].nombre << " " << hotel[i][j].huespedes[k].pais << " "
+                                  << hotel[i][j].huespedes[k].id << " " << hotel[i][j].huespedes[k].res.codHabitacion
+                                  << " " << hotel[i][j].huespedes[k].res.fechaInicio.dia << " "
                                   << hotel[i][j].huespedes[k].res.fechaInicio.mes << " "
                                   << hotel[i][j].huespedes[k].res.fechaInicio.anio << "\n";
                 }
