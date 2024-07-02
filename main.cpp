@@ -46,7 +46,8 @@ void colocar_fuera_servicio(habitacion (&)[8][4]);
 void modificar_habitacion(habitacion (&)[8][4]);
 void registrar_huesped(habitacion (&)[8][4]);
 void registrar_salida_huesped(habitacion (&)[8][4]);
-void generar_boleta(habitacion (&hotel)[8][4]);
+void mostrar_huespedes_registrados(habitacion (&)[8][4]);
+void generar_boleta(habitacion (&)[8][4]);
 void guardar_datos(habitacion hotel[8][4]);
 void cargar_datos(habitacion hotel[8][4]);
 
@@ -133,6 +134,7 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
             cout << "2. Modificar habitación\n";
             cout << "3. Colocar habitación fuera de servicio\n";
             cout << "4. Editar usuarios y contraseñas\n";
+            cout << "5. Mostrar huespedes registrados\n";
             cout << "0. Salir\n";
             cout << "====================================\n";
             cout << "Ingrese su opción: ";
@@ -157,6 +159,10 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
                 case 4:
                     system("cls");
                     editar_usuarios_contrasenas();
+                    break;
+                case 5:
+                    system("cls");
+                    mostrar_huespedes_registrados(hotel);
                     break;
                 case 0:
                     cout << "Saliendo...\n";
@@ -256,6 +262,43 @@ void generar_boleta(habitacion (&hotel)[8][4]) {
     cout << "Habitación: " << hotel[piso - 1][numero - 1].codigo << "\n";
     cout << "Total a pagar: $" << total << "\n";
     cout << "----------------------------\n";
+
+    for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; ++i) {
+        huesped& h = hotel[piso - 1][numero - 1].huespedes[i];
+        cout << "Datos del huésped:\n";
+        cout << "Nombre: " << h.nombre << endl;
+        cout << "País: " << h.pais << endl;
+        cout << "ID: " << h.id << endl;
+        cout << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/" << h.res.fechaInicio.anio << endl;
+        cout << "----------------------------\n";
+    }
+
+    char respuesta;
+    cout << "¿Desea descargar la boleta? (s/n): ";
+    cin >> respuesta;
+    if (respuesta == 's' || respuesta == 'S') {
+        ofstream archivo("boleta_cliente.txt");
+        if (archivo.is_open()) {
+            archivo << "Boleta electrónica\n";
+            archivo << "Habitación: " << hotel[piso - 1][numero - 1].codigo << "\n";
+            archivo << "Total a pagar: $" << total << "\n";
+            archivo << "----------------------------\n";
+
+            for (int i = 0; i < hotel[piso - 1][numero - 1].huespdesActuales; ++i) {
+                huesped& h = hotel[piso - 1][numero - 1].huespedes[i];
+                archivo << "Datos del huésped:\n";
+                archivo << "Nombre: " << h.nombre << endl;
+                archivo << "País: " << h.pais << endl;
+                archivo << "ID: " << h.id << endl;
+                archivo << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/" << h.res.fechaInicio.anio << endl;
+                archivo << "----------------------------\n";
+            }
+            archivo.close();
+            cout << "Boleta descargada exitosamente en boleta_cliente.txt\n";
+        } else {
+            cout << "Error al crear el archivo de boleta.\n";
+        }
+    }
 }
 
 void registrar_huesped(habitacion (&hotel)[8][4]) {
@@ -459,9 +502,41 @@ void modificar_habitacion(habitacion (&hotel)[8][4]) {
     }
 }
 
+void mostrar_huespedes_registrados(habitacion (&hotel)[8][4]) {
+    cout << "====================================\n";
+    cout << "Huéspedes registrados en el hotel\n";
+    cout << "====================================\n";
+    bool hayHuespedes = false;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (hotel[i][j].codigo != 0 && hotel[i][j].huespdesActuales > 0) {
+                cout << "Piso " << i + 1 << ", Habitación " << hotel[i][j].codigo << ":\n";
+                for (int k = 0; k < hotel[i][j].huespdesActuales; k++) {
+                    huesped& h = hotel[i][j].huespedes[k];
+                    cout << "Nombre: " << h.nombre << endl;
+                    cout << "País: " << h.pais << endl;
+                    cout << "ID: " << h.id << endl;
+                    cout << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/" << h.res.fechaInicio.anio << endl;
+                    cout << "------------------------------\n";
+                }
+                hayHuespedes = true;
+            }
+        }
+
+    }
+    if (!hayHuespedes) {
+        cout << "No hay huéspedes registrados en el hotel actualmente.\n";
+    }
+
+    cout << "Presiona Enter para volver al menú principal...";
+    cin.ignore();
+    cin.get();
+}
+
 void cargar_datos(habitacion hotel[8][4]) {
     ifstream file("datos_hotel.txt");
-    if (!file) {
+    ifstream fileHuespedes("datos_huespedes.txt");
+    if (!file || !fileHuespedes) {
         cerr << "Error al abrir el archivo para cargar o archivo no existe\n";
         return;
     }
@@ -486,11 +561,12 @@ void cargar_datos(habitacion hotel[8][4]) {
 
         for (int k = 0; k < temp.huespdesActuales; k++) {
             huesped tempHuesped;
-            file >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.fechaInicio.dia >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
+            fileHuespedes >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.codHabitacion >> tempHuesped.res.fechaInicio.dia >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
             hotel[piso][numero].huespedes[k] = tempHuesped;
         }
     }
     file.close();
+    fileHuespedes.close();
     cout << "Datos cargados exitosamente\n";
 }
 
