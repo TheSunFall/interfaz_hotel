@@ -132,6 +132,7 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
             cout << "2. Modificar habitación\n";
             cout << "3. Colocar habitación fuera de servicio\n";
             cout << "4. Editar usuarios y contraseñas\n";
+            cout << "5. Mostrar huespedes registrados\\n";
             cout << "0. Salir\n";
             cout << "====================================\n";
             cout << "Ingrese su opción: ";
@@ -156,6 +157,10 @@ void menu_administradores(habitacion (&hotel)[8][4]) {
                 case 4:
                     system("cls");
                     editar_usuarios_contrasenas();
+                    break;
+                case 5:
+                    system("cls");
+                    mostrar_huespedes_registrados(hotel);
                     break;
                 case 0:
                     cout << "Saliendo...\n";
