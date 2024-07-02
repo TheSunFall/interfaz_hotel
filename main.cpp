@@ -34,33 +34,20 @@ struct habitacion {
 };
 
 void menu(habitacion (&)[8][4]);
-
 void menu_administradores(habitacion (&)[8][4]);
-
 void crear_archivo_usuarios();
-
 void inicializar_archivos();
-
 bool verificar_usuario();
-
 void editar_usuarios_contrasenas();
-
 void ver_habitaciones_disponibles(habitacion (&)[8][4]);
-
 void aniadir_habitacion(habitacion (&)[8][4]);
-
 void colocar_fuera_servicio(habitacion (&)[8][4]);
-
 void modificar_habitacion(habitacion (&)[8][4]);
-
 void registrar_huesped(habitacion (&)[8][4]);
-
 void registrar_salida_huesped(habitacion (&)[8][4]);
-
-void generar_boleta(habitacion (&hotel)[8][4]);
-
+void mostrar_huespedes_registrados(habitacion (&)[8][4]);
+void generar_boleta(habitacion (&)[8][4]);
 void guardar_datos(habitacion hotel[8][4]);
-
 void cargar_datos(habitacion hotel[8][4]);
 
 int main() {
@@ -547,9 +534,41 @@ void modificar_habitacion(habitacion (&hotel)[8][4]) {
     }
 }
 
+void mostrar_huespedes_registrados(habitacion (&hotel)[8][4]) {
+    cout << "====================================\n";
+    cout << "Huéspedes registrados en el hotel\n";
+    cout << "====================================\n";
+    bool hayHuespedes = false;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (hotel[i][j].codigo != 0 && hotel[i][j].huespdesActuales > 0) {
+                cout << "Piso " << i + 1 << ", Habitación " << hotel[i][j].codigo << ":\n";
+                for (int k = 0; k < hotel[i][j].huespdesActuales; k++) {
+                    huesped& h = hotel[i][j].huespedes[k];
+                    cout << "Nombre: " << h.nombre << endl;
+                    cout << "País: " << h.pais << endl;
+                    cout << "ID: " << h.id << endl;
+                    cout << "Fecha de inicio: " << h.res.fechaInicio.dia << "/" << h.res.fechaInicio.mes << "/" << h.res.fechaInicio.anio << endl;
+                    cout << "------------------------------\n";
+                }
+                hayHuespedes = true;
+            }
+        }
+
+    }
+    if (!hayHuespedes) {
+        cout << "No hay huéspedes registrados en el hotel actualmente.\n";
+    }
+
+    cout << "Presiona Enter para volver al menú principal...";
+    cin.ignore();
+    cin.get();
+}
+
 void cargar_datos(habitacion hotel[8][4]) {
     ifstream file("datos_hotel.txt");
-    if (!file) {
+    ifstream fileHuespedes("datos_huespedes.txt");
+    if (!file || !fileHuespedes) {
         cerr << "Error al abrir el archivo para cargar o archivo no existe\n";
         return;
     }
@@ -563,11 +582,9 @@ void cargar_datos(habitacion hotel[8][4]) {
     while (!file.eof()) {
         int piso, numero;
         habitacion temp;
-        file >> temp.codigo >> temp.tipo >> temp.capacidadMax >> temp.precioNoche >> temp.huespdesActuales
-             >> temp.fueraDeServicio;
+        file >> temp.codigo >> temp.tipo >> temp.capacidadMax >> temp.precioNoche >> temp.huespdesActuales >> temp.fueraDeServicio;
 
-        if (file.eof())
-            break;
+        if (file.eof()) break;
 
         piso = temp.codigo / 100 - 1;
         numero = temp.codigo % 100 - 1;
@@ -576,12 +593,14 @@ void cargar_datos(habitacion hotel[8][4]) {
 
         for (int k = 0; k < temp.huespdesActuales; k++) {
             huesped tempHuesped;
+            fileHuespedes >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.codHabitacion >> tempHuesped.res.fechaInicio.dia >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
             file >> tempHuesped.nombre >> tempHuesped.pais >> tempHuesped.id >> tempHuesped.res.fechaInicio.dia
                  >> tempHuesped.res.fechaInicio.mes >> tempHuesped.res.fechaInicio.anio;
             hotel[piso][numero].huespedes[k] = tempHuesped;
         }
     }
     file.close();
+    fileHuespedes.close();
     cout << "Datos cargados exitosamente\n";
 }
 
